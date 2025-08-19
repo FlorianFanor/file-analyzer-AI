@@ -25,7 +25,7 @@ export default function GraphWithAnomalies({ data }) {
     labels,
     datasets: [
       {
-        label: "Valeurs",
+        label: "Values",
         data: allValues,
         borderColor: "#3b82f6",
         backgroundColor: "#3b82f6",

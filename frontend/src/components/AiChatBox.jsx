@@ -19,17 +19,17 @@ export default function AiChatBox() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold text-gray-700">Agent IA</h2>
+      <h2 className="text-2xl font-semibold text-gray-700">AI Assistant</h2>
 
       <div className="bg-gray-100 p-4 rounded-lg h-64 overflow-y-auto space-y-4 border">
         {messages.map((m, i) => (
           <div key={i} className="space-y-1">
             <div>
-              <span className="text-blue-600 font-medium">Vous:</span>{" "}
+              <span className="text-blue-600 font-medium">You:</span>{" "}
               {m.user}
             </div>
             <div>
-              <span className="text-green-600 font-medium">IA:</span>{" "}
+              <span className="text-green-600 font-medium">AI:</span>{" "}
               {m.ai}
             </div>
           </div>
@@ -40,14 +40,14 @@ export default function AiChatBox() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Posez une question sur les anomalies..."
+          placeholder="Ask a question about the anomalies..."
           className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           onClick={ask}
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
         >
-          Envoyer
+          Send
         </button>
       </div>
     </div>

@@ -3,14 +3,14 @@ export default function AnomalySummary({ data }) {
 
   return (
     <div className="mt-6 bg-white p-4 rounded-xl shadow">
-      <h2 className="text-lg font-semibold mb-2">Résumé des anomalies</h2>
+      <h2 className="text-lg font-semibold mb-2">Anomaly Summary</h2>
       {anomalies.length === 0 ? (
-        <p>Aucune anomalie détectée.</p>
+        <p>No anomalies detected.</p>
       ) : (
         <ul className="space-y-1 text-sm text-gray-700">
           {anomalies.map((d, i) => (
             <li key={i}>
-              Anomalie à <strong>{d.timestamp}</strong> — valeur: <strong>{d.value}</strong>, écart: <strong>{d.deviation?.toFixed(2)}</strong>
+              Anomaly at <strong>{d.timestamp}</strong> — value: <strong>{d.value}</strong>, deviation: <strong>{d.deviation?.toFixed(2)}</strong>
             </li>
           ))}
         </ul>

@@ -18,6 +18,10 @@ app.add_middleware(
 
 qa_pipeline = pipeline("question-answering")
 
+# Global variables to store latest data and context
+latest_data = []
+latest_anomalies = []
+latest_context = ""
 
 class TimePoint(BaseModel):
     timestamp: str
@@ -32,12 +36,12 @@ class QuestionRequest(BaseModel):
 
 def build_context():
     if not latest_data or not latest_anomalies:
-        return "Aucune anomalie détectée récemment."
+        return "No anomalies detected recently."
 
     parts = []
     for i in latest_anomalies:
         point = latest_data[i]
-        parts.append(f"Une anomalie a été détectée à {point.timestamp} avec une valeur de {point.value:.2f}.")
+        parts.append(f"An anomaly was detected at {point.timestamp} with a value of {point.value:.2f}.")
 
     return " ".join(parts)
 
@@ -46,24 +50,38 @@ def build_context():
 def ask_question(question: QuestionRequest):
     global latest_context
     if not latest_context:
-        return {"answer": "Aucune donnée n'a été analysée."}
+        return {"answer": "No data has been analyzed yet."}
     
     result = qa_pipeline(question=question.question, context=latest_context)
     return {"answer": result["answer"]}
 
 @app.post("/upload-excel")
 async def upload_excel(file: UploadFile = File(...)):
-    global latest_context
-    df = pd.read_excel(file.file)
+    global latest_context, latest_data, latest_anomalies
+    
+    try:
+        # Handle both CSV and Excel files
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(file.file)
+        else:
+            df = pd.read_excel(file.file)
+    except Exception as e:
+        return {"error": f"Error reading file: {str(e)}"}
 
     if "timestamp" not in df or "value" not in df:
         return {"error": "File must have 'timestamp' and 'value' columns."}
 
+    # Anomaly detection
     model = IsolationForest(contamination=0.1)
     df["anomaly"] = model.fit_predict(df[["value"]])
     df["rolling_mean"] = df["value"].rolling(window=10).mean()
     df["deviation"] = (df["value"] - df["rolling_mean"]).abs()
     df["deviation"] = df["deviation"].fillna(0)
+    
+    # Store data for AI chat context
+    latest_data = df.to_dict('records')
+    latest_anomalies = df[df["anomaly"] == -1].index.tolist()
+    latest_context = build_context()
     
     data = df[["timestamp", "value", "anomaly", "deviation"]].copy()
     data["timestamp"] = data["timestamp"].astype(str)
